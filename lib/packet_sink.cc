@@ -98,6 +98,9 @@ void enter_have_header(int payload_len)
 
 	d_state = STATE_HAVE_HEADER;
 	d_packetlen  = payload_len;
+    if (d_param_packet_len != 0) {
+        d_packetlen = d_param_packet_len;
+    }
 	d_payload_cnt = 0;
 	d_packet_byte = 0;
 	d_packet_byte_index = 0;
@@ -140,11 +143,12 @@ int slice(float x) {
 	return x > 0 ? 1 : 0;
 }
 
-packet_sink_impl(int threshold)
+packet_sink_impl(int packet_len, int threshold)
   : block ("packet_sink",
 		   gr::io_signature::make(1, 1, sizeof(float)),
 		   gr::io_signature::make(0, 0, 0)),
-    d_threshold(threshold)
+    d_threshold(threshold),
+    d_param_packet_len(packet_len)
 {
 	d_sync_vector = 0xA7;
 
@@ -380,6 +384,7 @@ private:
 
 	unsigned int      d_sync_vector;           // 802.15.4 standard is 4x 0 bytes and 1x0xA7
 	unsigned int      d_threshold;             // how many bits may be wrong in sync vector
+    unsigned int      d_param_packet_len;
 
 	unsigned int      d_shift_reg;             // used to look for sync_vector
 	int               d_preamble_cnt;          // count on where we are in preamble
@@ -402,6 +407,6 @@ private:
 	char buf[256];
 };
 
-packet_sink::sptr packet_sink::make(unsigned int threshold) {
-	return gnuradio::get_initial_sptr(new packet_sink_impl(threshold));
+packet_sink::sptr packet_sink::make(unsigned int packet_len, unsigned int threshold) {
+	return gnuradio::get_initial_sptr(new packet_sink_impl(packet_len, threshold));
 }

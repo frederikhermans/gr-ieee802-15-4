@@ -28,7 +28,7 @@ class GR_IEEE802_15_4_API packet_sink : virtual public block
 public:
 
 	typedef boost::shared_ptr<packet_sink> sptr;
-	static sptr make(unsigned int threshold = 10);
+	static sptr make(unsigned int payload_len, unsigned int threshold = 10);
 
 };
 
